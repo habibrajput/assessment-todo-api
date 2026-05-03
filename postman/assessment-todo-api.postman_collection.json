@@ -1,11 +1,11 @@
 {
   "info": {
-    "_postman_id": "62473b51-1e23-4150-80ea-e0d8cf3a0863",
+    "_postman_id": "021eeef6-77c9-4c73-8402-7bcc33d526f3",
     "name": "assessment-todo-api",
-    "description": "Complete Postman collection for the Todo List API.\n\n**Setup:**\n1. Import this collection AND the environment file (TodoAPI.postman_environment.json).\n2. Select the **Todo API – Local** environment.\n3. Run **Register** → **Verify Email** (paste code from Mailtrap) → **Login** (token auto-saves).\n4. All protected endpoints use `{{token}}` automatically.\n\nEvery response follows the `GlobalApiResponse` envelope:\n```json\n{\n  \"_metadata\": { \"outcome\": \"SUCCESS\", \"outcomeCode\": 0, \"numOfRecords\": 1, \"message\": \"...\" },\n  \"records\": { ... },\n  \"errors\": []\n}\n```",
+    "description": "Complete Postman collection for the Assessment Todo List API.\n\n**Setup:**\n\n1. Import this collection AND the environment file (assessment-todo-api.postman_environment.json).\n    \n2. Select the **assessment-todo-api-local** environment.\n    \n3. Run **Register** → **Verify Email** (paste code from Mailtrap) → **Login** (token auto-saves).\n    \n4. All protected endpoints use `{{token}}` automatically.\n    \n\nEvery response follows the `GlobalApiResponse` envelope:\n\n``` json\n{\n  \"_metadata\": { \"outcome\": \"SUCCESS\", \"outcomeCode\": 0, \"numOfRecords\": 1, \"message\": \"...\" },\n  \"records\": { ... },\n  \"errors\": []\n}\n\n ```",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "24757755",
-    "_collection_link": "https://go.postman.co/collection/24757755-62473b51-1e23-4150-80ea-e0d8cf3a0863?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/24757755-021eeef6-77c9-4c73-8402-7bcc33d526f3?source=collection_link"
   },
   "item": [
     {
@@ -74,7 +74,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Habib Ur Rehman\",\n    \"email\": \"demo@example.com\",\n    \"password\": \"password\",\n    \"password_confirmation\": \"password\"\n}"
+              "raw": "{\n    \"name\": \"Demo User\",\n    \"email\": \"demo@example.com\",\n    \"password\": \"password\",\n    \"password_confirmation\": \"password\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/auth/register",

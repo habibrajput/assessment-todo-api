@@ -72,8 +72,8 @@ database/
     └── DatabaseSeeder.php             ← demo users for all test scenarios
 
 postman/
-├── TodoAPI.postman_collection.json
-└── TodoAPI.postman_environment.json
+├── assessment-todo-api.postman_collection.json
+└── assessment-todo-api.postman_environment.json
 
 routes/
 └── api.php
@@ -262,8 +262,8 @@ php artisan serve
 
 1. Open Postman → **Import**
 2. Import both files from the `postman/` directory:
-   - `TodoAPI.postman_collection.json`
-   - `TodoAPI.postman_environment.json`
+   - `assessment-todo-api.postman_collection.json`
+   - `assessment-todo-api.postman_environment.json`
 3. Select **Todo API – Local** environment (top-right dropdown)
 4. Follow this flow:
 
