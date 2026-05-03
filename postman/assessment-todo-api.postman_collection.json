@@ -1,0 +1,749 @@
+{
+  "info": {
+    "_postman_id": "62473b51-1e23-4150-80ea-e0d8cf3a0863",
+    "name": "assessment-todo-api",
+    "description": "Complete Postman collection for the Todo List API.\n\n**Setup:**\n1. Import this collection AND the environment file (TodoAPI.postman_environment.json).\n2. Select the **Todo API – Local** environment.\n3. Run **Register** → **Verify Email** (paste code from Mailtrap) → **Login** (token auto-saves).\n4. All protected endpoints use `{{token}}` automatically.\n\nEvery response follows the `GlobalApiResponse` envelope:\n```json\n{\n  \"_metadata\": { \"outcome\": \"SUCCESS\", \"outcomeCode\": 0, \"numOfRecords\": 1, \"message\": \"...\" },\n  \"records\": { ... },\n  \"errors\": []\n}\n```",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "24757755",
+    "_collection_link": "https://go.postman.co/collection/24757755-62473b51-1e23-4150-80ea-e0d8cf3a0863?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Outcome is SUCCESS', () => pm.expect(res._metadata.outcome).to.eql('SUCCESS'));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Demo User\",\n    \"email\": \"demo@example.com\",\n    \"password\": \"password\",\n    \"password_confirmation\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Creates a new unverified user account and sends a verification e-mail.\n\n**Required fields:** name, email, password, password_confirmation\n\n**After this call:** check your Mailtrap inbox, copy the verification code from the URL and call the Verify Email endpoint."
+          },
+          "response": []
+        },
+        {
+          "name": "Register – Duplicate Email (should fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Habib Ur Rehman\",\n    \"email\": \"demo@example.com\",\n    \"password\": \"password\",\n    \"password_confirmation\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Calling register a second time with the same e-mail should return outcomeCode 5 (RECORD_ALREADY_EXIST)."
+          },
+          "response": []
+        },
+        {
+          "name": "Register – Validation Error (should fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"not-an-email\",\n    \"password\": \"short\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Should return 422 with outcomeCode 2 (INVALID_FORM_INPUTS) and field-level error messages."
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Outcome is SUCCESS', () => pm.expect(res._metadata.outcome).to.eql('SUCCESS'));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/verify/{{verification_code}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "verify",
+                "{{verification_code}}"
+              ]
+            },
+            "description": "Activates the account.\n\n1. After registering, open your Mailtrap inbox.\n2. Click 'Verify Email Address' and copy the code at the end of the URL.\n3. Paste it into the `verification_code` environment variable.\n4. Send this request."
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Email – Invalid Code (should fail)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/verify/this-is-not-a-real-code",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "verify",
+                "this-is-not-a-real-code"
+              ]
+            },
+            "description": "Should return 400 with outcomeCode 6 (RECORD_NOT_EXIST)."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has access_token', () => pm.expect(res.records.access_token).to.be.a('string'));",
+                  "// Auto-save the token so all protected requests use it",
+                  "if (res.records && res.records.access_token) {",
+                  "    pm.environment.set('token', res.records.access_token);",
+                  "    console.log('Token saved to environment.');",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"demo@example.com\",\n    \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Returns a JWT bearer token on success. The test script automatically saves the token to the `token` environment variable – all subsequent protected requests will use it."
+          },
+          "response": []
+        },
+        {
+          "name": "Login – Wrong Password (should fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"wrongpass@example.com\",\n    \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Should return 401 with outcomeCode 3 (INVALID_CREDENTIALS)."
+          },
+          "response": []
+        },
+        {
+          "name": "Login – Unverified User (should fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"unverified@example.com\",\n    \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Register a new account but do NOT verify it, then try logging in here. Should return outcomeCode 10 (EMAIL_NOT_VERIFIED)."
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Outcome is SUCCESS', () => pm.expect(res._metadata.outcome).to.eql('SUCCESS'));",
+                  "// Clear the saved token",
+                  "pm.environment.unset('token');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Blacklists the current JWT. After this call the token is invalid. The test script also clears the saved environment token."
+          },
+          "response": []
+        }
+      ],
+      "description": "Registration, e-mail verification, login, and logout."
+    },
+    {
+      "name": "Todos",
+      "item": [
+        {
+          "name": "List Todos (page 1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Records has pagination', () => pm.expect(res.records).to.have.property('pagination'));",
+                  "pm.test('Records has todos array', () => pm.expect(res.records.todos).to.be.an('array'));",
+                  "// Save the first todo id for later tests",
+                  "if (res.records.todos && res.records.todos.length > 0) {",
+                  "    pm.environment.set('todo_id', res.records.todos[0].id);",
+                  "    console.log('Saved todo_id:', res.records.todos[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/todos?page=1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "todos"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Returns the first page (10 items) of the authenticated user's todos."
+          },
+          "response": []
+        },
+        {
+          "name": "List Todos (page 2)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/todos?page=2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "todos"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "2"
+                }
+              ]
+            },
+            "description": "Second page. Seed data has 15 items so page 2 returns 5."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Todos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/todos?search=Work",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "todos"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Work"
+                }
+              ]
+            },
+            "description": "Filters todos whose title contains the search term (case-insensitive LIKE query)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Todo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Todo has id', () => pm.expect(res.records.todo.id).to.be.a('number'));",
+                  "",
+                  "// Overwrite todo_id with the freshly created one",
+                  "pm.environment.set('todo_id', res.records.todo.id);",
+                  "console.log('Created todo_id:', res.records.todo.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Buy groceries\",\n    \"description\": \"Milk, eggs, bread, and coffee from the supermarket.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/todos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "todos"
+              ]
+            },
+            "description": "Creates a new todo. The test script saves the new id as `todo_id` so the following View/Update/Delete requests use it automatically."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Todo – Validation Error (should fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/todos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "todos"
+              ]
+            },
+            "description": "Sending an empty title and no description should return 422 (INVALID_FORM_INPUTS)."
+          },
+          "response": []
+        },
+        {
+          "name": "View Todo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Records has todo', () => pm.expect(res.records).to.have.property('todo'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/todos/{{todo_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "todos",
+                "{{todo_id}}"
+              ]
+            },
+            "description": "Fetches a single todo by ID. Only works if the todo belongs to the authenticated user."
+          },
+          "response": []
+        },
+        {
+          "name": "View Todo – Not Found (should fail)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/todos/999999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "todos",
+                "999999"
+              ]
+            },
+            "description": "Should return 404 with outcomeCode 6 (RECORD_NOT_EXIST)."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Todo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Title was updated', () => pm.expect(res.records.todo.title).to.eql('Buy organic groceries'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Buy organic groceries\",\n    \"description\": \"Organic milk, free-range eggs, sourdough bread, and specialty coffee.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/todos/{{todo_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "todos",
+                "{{todo_id}}"
+              ]
+            },
+            "description": "Replaces the title and description of the todo with `todo_id`."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Todo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Outcome is SUCCESS', () => pm.expect(res._metadata.outcome).to.eql('SUCCESS'));",
+                  "pm.environment.unset('todo_id');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/todos/{{todo_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "todos",
+                "{{todo_id}}"
+              ]
+            },
+            "description": "Permanently removes the todo. The test script clears `todo_id` from the environment."
+          },
+          "response": []
+        },
+        {
+          "name": "Access Todo Without Token (should fail)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/todos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "todos"
+              ]
+            },
+            "description": "No Authorization header. Should return 401 with outcomeCode 4 (NOT_LOGGED_IN)."
+          },
+          "response": []
+        }
+      ],
+      "description": "All CRUD operations on todo items. Every request requires a valid Bearer token."
+    }
+  ]
+}
